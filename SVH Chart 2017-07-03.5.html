@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<meta content="utf-8" http-equiv="encoding">
+
+<svg class="chart" style="background: #fffefd"></svg>
+
+<script src="d3.v4.js" charset="utf-8"></script>
+<script>
+
+
+// container size & padding
+var margin = {top: 120, right: 80, bottom: 160, left: 80},
+    width = 1200 - margin.left - margin.right,
+    height = 800 - margin.top - margin.bottom;
+
+</script>
+<script src="svhChartSpecs.js" charset="utf-8"></script>
+<script>
+var chart = d3.select(".chart")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// define ranges
+var x = d3.scaleBand()
+    .rangeRound([0, width])
+    .padding(0.0004 * width);
+var y = d3.scaleLinear().range([height, 0]);
+
+// get the data
+var data;
+d3.json("https://spreadsheets.google.com/feeds/cells/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/3/public/values?range=B3:O7&alt=json", function(error, json) {
+	if (error) return console.warn(error);
+	data = json.feed.entry;
+	
+	// extract data from JSON & prep for binding
+	var chartData = [],
+		month = [],
+		dana = [],
+		expense = [],
+		balance = [],
+		targetMinBal = [];
+	function prepGsJson() {
+		for (i = 0; i < data.length; i++) {
+			switch(data[i].gs$cell.row) {
+				case "3":
+					month.push(data[i].content.$t);
+					break;
+				case "4":
+					dana.push(Number(data[i].gs$cell.numericValue));
+					break;
+				case "5":
+					expense.push(Number(data[i].gs$cell.numericValue));
+					break;
+				case "6":
+					balance.push(Number(data[i].gs$cell.numericValue));
+					break;
+				case "7":
+					targetMinBal.push(Number(data[i].gs$cell.numericValue));
+					break;
+			}
+		}
+		for (i = 0; i < month.length; i++) {
+			chartData[i] = {
+				"month":month[i], 
+				"dana":dana[i], 
+				"expense":expense[i], 
+				"balance":balance[i], 
+				"targetMinBal":targetMinBal[i]
+			};
+		}
+	}
+	prepGsJson();
+	
+	// define the domain
+	x.domain(chartData.map(function(d) { return d.month; } ));
+	y.domain([0, d3.max(chartData.map(function(d) { return d.balance; } ))]);
+	
+	var bar = chart.selectAll("g").data(chartData)
+		.enter().append("g")
+			.attr("transform", function(d, i) { return "translate(" + x(d.month) + ",0)"; });
+
+	bar.append("rect")
+		.attr("class", "dana")
+		.attr("y", function(d) { return y(d.dana); })
+		.attr("height", function(d) { return height - y(d.dana); })
+		.attr("width", x.bandwidth() / 2);
+	bar.append("rect")
+		.attr("class", "expense")
+		.attr("y", function(d) { return y(d.expense); })
+		.attr("height", function(d) { return height - y(d.expense); })
+		.attr("width", x.bandwidth() / 2)
+		.attr("x", x.bandwidth() / 2);
+		
+	chart.append("g")
+		.attr("transform", "translate(0," + height + ")")
+		.attr("class", "xaxis")
+		.call(d3.axisBottom(x)
+			.tickSizeInner(6)
+			.tickSizeOuter(0)
+		);
+
+	chart.append("g")
+		.attr("class", "yaxis")
+		.call(d3.axisLeft(y)
+			.tickSizeOuter(0)
+			.tickSizeInner(width * -1)
+			.tickArguments([4, d3.format("$,f")])
+		);
+	
+	var balanceLine = d3.line()
+		.x(function(d) { return x(d.month); })
+		.y(function(d) { return y(d.balance); });
+
+	chart.append("path")
+		.data([chartData])
+		.attr("class", "balance")
+		.attr("d", balanceLine)
+		.attr("transform", "translate(" + x.bandwidth() / 2 + ",0)");
+		
+	var balanceArea = d3.area()
+		.x(function(d) { return x(d.month); })
+		.y0(height)
+		.y1(function(d) { return y(d.balance); });
+		
+	chart.append("path")
+		.data([chartData])
+		.attr("class", "balanceFill")
+		.attr("d", balanceArea)
+		.attr("transform", "translate(" + x.bandwidth() / 2 + ",0)");
+		
+	var minimumLine = d3.line()
+		.x(function(d) { return x(d.month); })
+		.y(function(d) { return y(d.targetMinBal); });
+		
+	var targMinBalLine = chart.append("path")
+		.data([chartData])
+		.attr("class", "minimum")
+		.attr("id", "minimum")
+		.attr("d", minimumLine)
+		.attr("transform", "translate(" + x.bandwidth() / 2 + ",0)");
+		
+	// remove 0
+	chart.selectAll(".tick")
+		.each(function (d) {
+		if ( d === 0 ) {
+			this.remove();
+		}
+	});
+	
+	chart.selectAll(".yaxis .tick text")
+		.attr("dx", -10);
+		
+	chart.selectAll(".xaxis .tick text")
+		.attr("transform", "rotate(-40)")
+		.attr("dy", 15)
+		.attr("dx", -5);
+		
+	var minLine = document.getElementsByClassName("minimum")[0];
+	var minLineD = minLine.getAttribute("d");
+	var str = minLineD.substring(minLineD.lastIndexOf(",") + 1);
+	minLineFixD = minLineD + "," + (width - (x.bandwidth() / 2)) + " " + str;
+	console.log("name me! " + str);
+	minLine.setAttribute("d", minLineFixD);
+
+	// chart title
+	chart.append("text")
+		.text("Seattle Vipassa Hall: Financials")
+		.attr("x", (width / 2))             
+		.attr("y", -70)
+		.attr("text-anchor", "middle")
+		.attr("class", "title");
+		
+	// "Target Minimum Balance"
+	var TarMinBalText = ["Target", "Minimum", "Balance"];
+	var TarMinBalBox = chart.append("text")
+		.attr("class", "minimumText")
+		.attr("x", function(d) { return width; })
+		.attr("y", (Number(str) + 5))
+	var o = 0.3;
+	var yAlignTMB = [-16 + o, 16 + o, 16 + o];
+	for(i=0;i<TarMinBalText.length;i++) {
+		TarMinBalBox.append("tspan")
+			.text(TarMinBalText[i])
+			.attr("text-anchor", "start")
+			.attr("dy", yAlignTMB[i])
+			.attr("x", function(d) { return width; })
+			.attr("dx", 8);
+	}
+
+	// legend
+	var legend = chart.append("g")
+		.attr("class", "legend")
+		.attr('transform', 'translate(' + ((width / 2) - 100) + ',' + lp.y + ')')
+	;
+	// build the label groups
+	Object.keys(lp.g).forEach(function(m){
+		var metric = legend.append('g')
+			.attr('id', 'lgnd-' + m)
+			.attr('transform', 'translate(' + lp.g[m].dx + ', 0)')
+		;
+		var txt = metric.append('text')
+			.text(lp.g[m].txt)
+			.attr('text-anchor', lp.txtanchr)
+		;
+		var box = metric.append('rect');
+		Object.keys(lp.g[m].box).forEach(function(a){
+			box.attr(a, lp.g[m].box[a]);
+		});
+		
+		d3.select('#lgnd-balance')
+			.append('rect')
+			.attr('fill', 'orange')
+			.attr('width', lp.g.balance.box.width)
+			.attr('height', 2.4)
+			.attr('x', lp.g.balance.box.x)
+			.attr('y', lp.g.balance.box.y)
+		;
+		d3.select('#lgnd-balance')
+			.append('rect')
+			.attr('fill', 'orange')
+			.attr('width', 2.4)
+			.attr('height', lp.boxhgt)
+			.attr('x', lp.g.balance.box.x)
+			.attr('y', lp.g.balance.box.y)
+		;
+		d3.select('#lgnd-balance')
+			.append('rect')
+			.attr('fill', 'orange')
+			.attr('width', lp.g.balance.box.width)
+			.attr('height', 2.4)
+			.attr('x', lp.g.balance.box.x)
+		;
+		d3.select('#lgnd-balance')
+			.append('rect')
+			.attr('fill', 'orange')
+			.attr('width', 2.4)
+			.attr('height', lp.boxhgt)
+			.attr('x', (x.bandwidth() / 2) -90 -2.4)
+			.attr('y', -lp.boxhgt + 2.4)
+		;
+	});
+});
+
+</script>
+<style>
+.chart {
+	shape-rendering: crispEdges;
+}
+/* text default */
+.chart text {
+  fill: #222222;
+  font: 18px arial;
+  text-anchor: end;
+  text-rendering: optimizeLegibility;
+}
+
+/* data */
+.chart rect.dana {
+  fill: steelblue;
+}
+.chart rect.expense {
+  fill: firebrick;
+}
+.chart path.balance {
+	fill: none;
+	stroke: orange;
+	stroke-width: 2.1;
+	shape-rendering: geometricPrecision;
+}
+.chart path.balanceFill {
+	fill: orange;
+	stroke: none;
+	opacity: 0.1;
+	z-index: -5;
+	shape-rendering: geometricPrecision;
+}
+.chart path.minimum {
+	fill: none;
+	stroke: green;
+	stroke-width: 2.5;
+	stroke-dasharray: 10, 5;
+}
+.chart text.minimumText {
+	fill: green;
+	font-size: 15px;
+}
+
+.chart .xaxis text {
+	font-size: 16px;
+}
+.chart .yaxis .domain {
+	stroke: none;
+}
+.chart .yaxis .tick line {
+	stroke: gray;
+	stroke-dasharray: 1, 1;
+}
+.chart .title {
+font-size: 2em;
+text-anchor: middle;
+}
+</style>
