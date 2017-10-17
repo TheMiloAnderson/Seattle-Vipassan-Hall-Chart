@@ -1,6 +1,5 @@
 .chart {
     shape-rendering: crispEdges;
-    fill: ffffaa;
 }
 .chart .container {
     transform-origin: center center;
@@ -23,7 +22,7 @@
 }
 .chart .yaxis .tick line {
     stroke: gray;
-    stroke-dasharray: 1, 1;
+    stroke-dasharray: 3, 3;
 }
 .chart .tick text {
     text-anchor: end;
@@ -32,26 +31,13 @@
     text-anchor: start;
     alignment-baseline: hanging;
 }
-.chart rect.expense {
-    fill: firebrick;
-}
 .chart path.balance {
     fill: none;
     shape-rendering: geometricPrecision;
 }
 .chart path.balanceFill {
-    fill: orange;
-    stroke: none;
-    opacity: 0.4;
     shape-rendering: geometricPrecision;
 }
 .chart path.minimum {
-    fill: none;
-    stroke: green;
-    stroke-width: 2.5;
     stroke-dasharray: 10, 5;
-}
-.chart text.minimumText {
-    fill: green;
-    font-size: 15px;
 }

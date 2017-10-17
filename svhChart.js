@@ -4,7 +4,7 @@
         p.title = 'Seattle Vipassa Hall: Financials';
         p.outerWidth = 1200;
         p.outerHeight = 700;
-        p.margin = {top: 140, right: 100, bottom: 170, left: 100};
+        p.margin = {top: 150, right: 100, bottom: 180, left: 100};
         p.width = p.outerWidth - p.margin.left - p.margin.right;
         p.height = p.outerHeight - p.margin.top - p.margin.bottom;
         p.bordercolor = 'lightgray';
@@ -20,13 +20,15 @@
         p.balance = {
             color: 'orange',
             opacity: .4,
-            strokeWidth: 2.5
+            strokeWidth: 3
         };
         p.targetMinimumBalance = {
             color: 'green',
+            strokeWidth: 2,
             text: ['Target', 'Minimum', 'Balance'],
             yOffset: -16,
-            lineHeight: 16
+            lineHeight: 16,
+            fontSize: 15
         };
         p.legend = {
             x: p.width / 2 - 160,
@@ -166,6 +168,8 @@
         ;
         chart.append('path')
             .attr('class', 'balanceFill')
+            .attr('opacity', p.balance.opacity)
+            .attr('fill', p.balance.color)
             .data([d])
             .attr('d', balanceArea)
             .attr('transform', 'translate(' + x.bandwidth() / 2 + ', 0)')
@@ -184,7 +188,8 @@
             .attr('id', 'minimum')
             .attr('d', minimumLine)
             .attr('transform', 'translate(' + x.bandwidth() / 2 + ',0)')
-            .attr('fill', p.targetMinimumBalance.color)
+            .attr('stroke', p.targetMinimumBalance.color)
+            .attr('stroke-width', p.targetMinimumBalance.strokeWidth)
         ;
         var TarMinBalBox = chart.append('text')
             .attr('class', 'minimumText')
@@ -195,10 +200,12 @@
             TarMinBalBox.append('tspan')
                 .text(p.targetMinimumBalance.text[n])
                 .attr('text-anchor', 'start')
+                .attr('font-size', p.targetMinimumBalance.fontSize)
                 .attr('dy', function() { 
                     return !n ? p.targetMinimumBalance.yOffset : p.targetMinimumBalance.lineHeight; })
                 .attr('x', function() { return p.width; })
                 .attr('dx', 8)
+                .attr('fill', p.targetMinimumBalance.color)
             ;
         }
         
