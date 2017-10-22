@@ -2,9 +2,10 @@
     
     var p = {};
         p.title = 'Seattle Vipassa Hall: Financials';
+        p.spreadsheetRange = 'B3:O7';
         p.outerWidth = 1200;
         p.outerHeight = 700;
-        p.margin = {top: 150, right: 100, bottom: 180, left: 100};
+        p.margin = {top: 150, right: 110, bottom: 180, left: 110};
         p.width = p.outerWidth - p.margin.left - p.margin.right;
         p.height = p.outerHeight - p.margin.top - p.margin.bottom;
         p.bordercolor = 'lightgray';
@@ -38,7 +39,7 @@
             text: ['Target', 'Minimum', 'Balance'],
             yOffset: -16,
             lineHeight: 16,
-            fontSize: 15
+            fontSize: 16
         };
         p.legend = {
             x: p.width / 2 - 160,
@@ -51,7 +52,7 @@
             dx: [0, 110, 240]
         };
     
-    d3.json('https://spreadsheets.google.com/feeds/cells/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/3/public/values?range=B3:O7&alt=json', 
+    d3.json('https://spreadsheets.google.com/feeds/cells/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/3/public/values?range=' + p.spreadsheetRange + '&alt=json', 
         function(error, json) {
             if (error) return console.warn(error);
             var data = prepData(json.feed.entry);
@@ -68,7 +69,7 @@
             chartData = []
         ;
         for (var n=0; n < d.length; n++) {
-            var w = d[n]
+            var w = d[n];
             switch(d[n].gs$cell.row) {
                 case '3': month.push(d[n].content.$t);
                     break;
