@@ -1,17 +1,10 @@
 {
   "name": "SVHChart",
   "version": "1.0.0",
-  "keywords": [
-    "util",
-    "functional",
-    "server",
-    "client",
-    "browser"
-  ],
+  "keywords": [],
   "author": "Milo Anderson",
   "contributors": [],
   "dependencies": {
-    "d3": "^4.11.0",
-    "webpack": "^3.6.0"
+    "d3": "^4.11.0"
   }
 }

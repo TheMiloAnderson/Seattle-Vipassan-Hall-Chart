@@ -9,6 +9,16 @@
         p.height = p.outerHeight - p.margin.top - p.margin.bottom;
         p.bordercolor = 'lightgray';
         p.borderWidth = 4;
+        p.xAxis = {
+            rotation: -35,
+            dx: -8,
+            dy: 15,
+            tickSize: 12
+        };
+        p.yAxis = {
+            numberOfTicks: 4,
+            dx: -10
+        };
         p.dana = {
             color: 'steelblue',
             opacity: 1
@@ -41,11 +51,10 @@
             dx: [0, 110, 240]
         };
     
-    d3.json(
-        'https://spreadsheets.google.com/feeds/cells/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/3/public/values?range=B3:O7&alt=json', 
+    d3.json('https://spreadsheets.google.com/feeds/cells/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/3/public/values?range=B3:O7&alt=json', 
         function(error, json) {
             if (error) return console.warn(error);
-            data = prepData(json.feed.entry);
+            var data = prepData(json.feed.entry);
             createChart(data);
         }
     );
@@ -89,11 +98,11 @@
         
         var svg = d3.select('.chart');
         svg.append('text')
+            .attr('class', 'title')
             .text(p.title)
             .attr('x', (p.outerWidth / 2))             
             .attr('y', p.margin.top / 2)
             .attr('text-anchor', 'middle')
-            .attr('class', 'title')
         ;
         svg.append("rect")
             .attr("x", 0)
@@ -124,13 +133,13 @@
             .attr('class', 'xaxis')
             .attr('transform', 'translate(0,' + p.height + ')')
             .call(d3.axisBottom(x)
-                .tickSizeInner(12)
+                .tickSizeInner(p.xAxis.tickSize)
                 .tickSizeOuter(0))
         ;
         chart.selectAll('.xaxis .tick text')
-            .attr('transform', 'rotate(-40)')
-            .attr('dy', 15)
-            .attr('dx', -5)
+            .attr('transform', 'rotate(' + p.xAxis.rotation + ')')
+            .attr('dx', p.xAxis.dx)
+            .attr('dy', p.xAxis.dy)
         ;
         
         //-----  Y Axis  -----//
@@ -139,10 +148,10 @@
             .call(d3.axisLeft(y)
                 .tickSizeOuter(0)
                 .tickSizeInner(p.width * -1)
-                .tickArguments([4, d3.format('$,f')]))
+                .tickArguments([p.yAxis.numberOfTicks, d3.format('$,f')]))
         ;
         chart.selectAll('.yaxis .tick text')
-            .attr('dx', -10)
+            .attr('dx', p.yAxis.dx)
         ;
         chart.selectAll('.tick')
             .each(function (n) { if (n === 0) this.remove(); })
