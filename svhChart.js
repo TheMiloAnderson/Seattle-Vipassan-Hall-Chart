@@ -2,14 +2,14 @@
     
     var p = {};
         p.title = 'Seattle Vipassa Hall: Financials';
-        p.spreadsheetRange = 'B3:O7';
+        p.spreadsheetRange = 'A22:E37';
         p.outerWidth = 1200;
         p.outerHeight = 700;
         p.margin = {top: 150, right: 110, bottom: 180, left: 110};
         p.width = p.outerWidth - p.margin.left - p.margin.right;
         p.height = p.outerHeight - p.margin.top - p.margin.bottom;
         p.bordercolor = 'lightgray';
-        p.borderWidth = 4;
+        p.borderWidth = 0;
         p.xAxis = {
             rotation: -35,
             dx: -8,
@@ -30,7 +30,7 @@
         };
         p.balance = {
             color: 'orange',
-            opacity: .4,
+            opacity: .2,
             strokeWidth: 3
         };
         p.targetMinimumBalance = {
@@ -52,51 +52,29 @@
             dx: [0, 110, 240]
         };
     
-    d3.json('https://spreadsheets.google.com/feeds/cells/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/3/public/values?range=' + p.spreadsheetRange + '&alt=json', 
+    d3.json('https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly%20Summaries!' + p.spreadsheetRange + '?key=AIzaSyAl8YFR2NSjLAO9ePNks8W-NYpcziEelg8', 
         function(error, json) {
             if (error) return console.warn(error);
-            var data = prepData(json.feed.entry);
+            var data = prepData(json.values);
             createChart(data);
         }
     );
     
     var prepData = function(d) {
-        var month = [],
-            dana = [],
-            expense = [],
-            balance = [],
-            targetMinBal = [],
-            chartData = []
-        ;
+        var chartData = [];
         for (var n=0; n < d.length; n++) {
-            var w = d[n];
-            switch(d[n].gs$cell.row) {
-                case '3': month.push(d[n].content.$t);
-                    break;
-                case '4': dana.push(Number(d[n].gs$cell.numericValue));
-                    break;
-                case '5': expense.push(Number(d[n].gs$cell.numericValue));
-                    break;
-                case '6': balance.push(Number(d[n].gs$cell.numericValue));
-                    break;
-                case '7': targetMinBal.push(Number(d[n].gs$cell.numericValue));
-                    break;
-            }
-        }
-        for (n = 0; n < month.length; n++) {
             chartData[n] = {
-                month: month[n], 
-                dana: dana[n], 
-                expense: expense[n], 
-                balance: balance[n], 
-                targetMinBal: targetMinBal[n]
+                month: d[n][0],
+                dana: Number(d[n][1].replace(/[^0-9.-]+/g,"")),
+                expense: Number(d[n][2].replace(/[^0-9.-]+/g,"")),
+                balance: Number(d[n][3].replace(/[^0-9.-]+/g,"")),
+                targetMinBal: Number(d[n][4].replace(/[^0-9.-]+/g,""))
             };
         }
         return chartData;
-    }; // End prepData
+    }; // end prepData
     
     var createChart = function(d) {
-        
         var svg = d3.select('.chart');
         svg.append('text')
             .attr('class', 'title')
