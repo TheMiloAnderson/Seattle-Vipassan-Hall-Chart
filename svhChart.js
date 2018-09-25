@@ -233,7 +233,6 @@
                 .attr('height', p.legend.boxhgt)
                 .attr('fill', p.legend.fill[n])
                 .attr('opacity', p.legend.opacity[n])
-                .attr('transform', 'translate(' + function() { return x.bandwidth() / 2; } + ', 0)')
             ;
             legendGroup.append('text')
                 .attr('class', 'legend-' + p.legend.text[n] + '-text')
