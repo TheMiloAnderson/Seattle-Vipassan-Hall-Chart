@@ -2,14 +2,14 @@
     
     var p = {};
         p.title = 'Seattle Vipassa Hall: Financials';
-        p.spreadsheetRange = 'A22:E37';
+        p.spreadsheetRange = 'A5:E';
         p.outerWidth = 1200;
         p.outerHeight = 700;
         p.margin = {top: 150, right: 110, bottom: 180, left: 110};
         p.width = p.outerWidth - p.margin.left - p.margin.right;
         p.height = p.outerHeight - p.margin.top - p.margin.bottom;
         p.bordercolor = 'lightgray';
-        p.borderWidth = 0;
+        p.borderWidth = 0; // disabled
         p.xAxis = {
             rotation: -35,
             dx: -8,
@@ -17,7 +17,7 @@
             tickSize: 12
         };
         p.yAxis = {
-            numberOfTicks: 4,
+            numberOfTicks: 4, // approximate
             dx: -10
         };
         p.dana = {
@@ -52,18 +52,19 @@
             dx: [0, 110, 240]
         };
     
-    d3.json('https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly%20Summaries!' + p.spreadsheetRange + '?key=AIzaSyAl8YFR2NSjLAO9ePNks8W-NYpcziEelg8', 
+    d3.json('https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly%20Summaries!' + p.spreadsheetRange + '?key=' + gapiKey, 
         function(error, json) {
             if (error) return console.warn(error);
-            var data = prepData(json.values);
+            var allData = prepData(json.values);
+            var data = filterData(allData);
             createChart(data);
         }
     );
     
     var prepData = function(d) {
-        var chartData = [];
+        var data = [];
         for (var n=0; n < d.length; n++) {
-            chartData[n] = {
+            data[n] = {
                 month: d[n][0],
                 dana: Number(d[n][1].replace(/[^0-9.-]+/g,"")),
                 expense: Number(d[n][2].replace(/[^0-9.-]+/g,"")),
@@ -71,8 +72,20 @@
                 targetMinBal: Number(d[n][4].replace(/[^0-9.-]+/g,""))
             };
         }
-        return chartData;
+        return data;
     }; // end prepData
+    
+    var filterData = function(d) {
+        var currentDate = Date.now();
+        for (var n = d.length - 1; n > 0; n--) {
+            var rowDate = Date.parse(d[n].month);
+            if (rowDate > currentDate) {
+                d.splice(n, 1);
+            }
+        }
+        d.splice(0, d.length - 16);
+        return d;
+    }; // end filterData
     
     var createChart = function(d) {
         var svg = d3.select('.chart');
