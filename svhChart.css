@@ -1,44 +1,58 @@
-.chart {
+#svhChart {
     shape-rendering: crispEdges;
 }
-.chart .container {
+#svhChart .container {
     transform-origin: center center;
 }
-.chart text {
+#svhChart text {
     fill: #222222;
     font: 19px Lato;
     text-rendering: optimizeLegibility;
 }
-.chart .title {
+#svhChart .title {
     font-size: 2.5em;
     text-anchor: middle;
     alignment-baseline: middle;
 }
-.chart .xaxis text {
+#svhChart .xaxis text {
     font-size: 16px;
 }
-.chart .yaxis .domain {
+#svhChart .yaxis .domain {
     stroke: none;
 }
-.chart .yaxis .tick line {
+#svhChart .yaxis .tick line {
     stroke: gray;
     stroke-width: 2;
     stroke-dasharray: 3, 3;
 }
-.chart .tick text {
+#svhChart .tick text {
     text-anchor: end;
 }
-.chart .legend text {
+#svhChart .legend text {
     text-anchor: start;
     alignment-baseline: hanging;
 }
-.chart path.balance {
+#svhChart path.balance {
     fill: none;
     shape-rendering: geometricPrecision;
 }
-.chart path.balanceFill {
+#svhChart path.balanceFill {
     shape-rendering: geometricPrecision;
 }
-.chart path.minimum {
+#svhChart path.minimum {
     stroke-dasharray: 10, 5;
+}
+
+#changeDataButton {
+    position: fixed;
+    opacity: 0;
+    transition: opacity 1s;
+}
+#changeDataBox {
+    position: fixed;
+    top: 50px;
+    opacity: 0;
+    transition: opacity 0.5s;
+    padding: 10px;
+    background-color: gainsboro;
 }

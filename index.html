@@ -9,10 +9,17 @@
         <link href="svhChart.css" rel="stylesheet" type="text/css">
     </head>
     <body>
-        <svg class="chart" viewBox="0 0 1200 700"></svg>
+        <button id="changeDataButton">Show a Different Date Range</button>
+        <div id="changeDataBox">
+            Display <input id="monthCount" type="text" size="1"> months, <br />
+            ending in <select id="endDate"></select><br />
+            <button id="changeDataBoxCancel">Cancel</button>
+            <button id="changeDataBoxOK">OK</button>
+        </div>
+        
+        <svg id="svhChart" viewBox="0 0 1200 700"></svg>
         
         <script src="node_modules/d3/build/d3.min.js"></script>
-        <script src="config.js"></script>
         <script src="svhChart.js"></script>
     </body>
 </html>

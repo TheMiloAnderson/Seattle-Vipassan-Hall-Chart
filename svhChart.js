@@ -1,7 +1,7 @@
-(function() {
+window.onload = (function() {
     
     var p = {};
-        p.title = 'Seattle Vipassa Hall: Financials';
+        p.title = 'Seattle Vipassana Hall: Financials';
         p.spreadsheetRange = 'A5:E';
         p.outerWidth = 1200;
         p.outerHeight = 700;
@@ -52,19 +52,59 @@
             dx: [0, 110, 240]
         };
     
-    d3.json('https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly%20Summaries!' + p.spreadsheetRange + '?key=' + gapiKey, 
+    var allData,
+        changeDataButton = document.getElementById("changeDataButton"),
+        changeDataBox = document.getElementById("changeDataBox"),
+        changeDataBoxCancel = document.getElementById("changeDataBoxCancel"),
+        changeDataBoxOK = document.getElementById("changeDataBoxOK"),
+        svg = d3.select('#svhChart');
+    
+    d3.json('https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly%20Summaries!' + p.spreadsheetRange + '?key=AIzaSyCUoCo3HpGO2RbBnoooc7ycl__UtdAdX48', 
         function(error, json) {
             if (error) return console.warn(error);
-            var allData = prepData(json.values);
-            var data = filterData(allData);
+            allData = prepData(json.values);
+            var data = filterData(allData.slice(0));
             createChart(data);
+            setupInterface();
         }
     );
     
-    var prepData = function(d) {
-        var data = [];
+    function setupInterface() {
+        var endDate = document.getElementById("endDate");
+        var monthCount = document.getElementById("monthCount");
+        for (var n = 0; n < allData.length; n++) {
+            var option = document.createElement("option");
+            option.text = allData[n].month;
+            endDate.add(option);
+        }
+        var timeout;
+        window.onmousemove = function() {
+            changeDataButton.style.opacity = '1';
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                changeDataButton.style.opacity = '0';
+            }, 2000);
+        };
+        changeDataButton.onclick = function() {
+            changeDataBox.style.opacity = '1';
+        };
+        changeDataBoxCancel.onclick = function() {
+            changeDataBox.style.opacity = '0';
+            changeDataButton.style.opacity = '0';
+        };
+        changeDataBoxOK.onclick = function() {
+            changeDataBox.style.opacity = '0';
+            changeDataButton.style.opacity = '0';
+            svg.selectAll("*").remove();
+            var data = filterData(allData.slice(0), endDate.value, monthCount.value);
+            createChart(data);
+        };
+    } // end setupInterface
+    
+    function prepData(d) {
+        var preppedData = [];
         for (var n=0; n < d.length; n++) {
-            data[n] = {
+            preppedData[n] = {
                 month: d[n][0],
                 dana: Number(d[n][1].replace(/[^0-9.-]+/g,"")),
                 expense: Number(d[n][2].replace(/[^0-9.-]+/g,"")),
@@ -72,23 +112,34 @@
                 targetMinBal: Number(d[n][4].replace(/[^0-9.-]+/g,""))
             };
         }
-        return data;
+        return preppedData;
     }; // end prepData
     
-    var filterData = function(d) {
-        var currentDate = Date.now();
-        for (var n = d.length - 1; n > 0; n--) {
-            var rowDate = Date.parse(d[n].month);
-            if (rowDate > currentDate) {
-                d.splice(n, 1);
+    function filterData(d, endDate, monthCount = 16) {
+        if (typeof(endDate) === 'undefined') { 
+            var currentDate = Date.now();
+            for (var n = d.length - 1; n > 0; n--) {
+                var rowDate = Date.parse(d[n].month);
+                if (rowDate > currentDate) {
+                    d.splice(n, 1);
+                }
+            }
+        } else {
+            endDate = Date.parse(endDate);
+            for (var n = d.length - 1; n > 0; n--) {
+                var rowDate = Date.parse(d[n].month);
+                if (rowDate > endDate) {
+                    d.splice(n, 1);
+                }
             }
         }
-        d.splice(0, d.length - 16);
+        if (d.length > monthCount) {
+            d.splice(0, d.length - monthCount);
+        }
         return d;
     }; // end filterData
     
-    var createChart = function(d) {
-        var svg = d3.select('.chart');
+    function createChart(d) {
         svg.append('text')
             .attr('class', 'title')
             .text(p.title)
@@ -197,7 +248,7 @@
             .attr('x', function() { return p.width; })
             .attr('y', (Number(minimumLineEnd) + 5))
         ;
-        for(var n=0;n<p.targetMinimumBalance.text.length;n++) {
+        for(var n = 0; n < p.targetMinimumBalance.text.length; n++) {
             TarMinBalBox.append('tspan')
                 .text(p.targetMinimumBalance.text[n])
                 .attr('text-anchor', 'start')
@@ -237,7 +288,7 @@
             .attr('class', 'legend')
             .attr('transform', 'translate(' + p.legend.x + ', ' + p.legend.y + ')')
         ;
-        for (var n=0; n<p.legend.text.length; n++) {
+        for (var n = 0; n < p.legend.text.length; n++) {
             var legendGroup = legend.append('g')
                 .attr('id', 'lgnd-' + p.legend.text[n])
                 .attr('transform', 'translate(' + p.legend.dx[n] + ', 0)');
