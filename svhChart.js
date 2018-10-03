@@ -82,7 +82,9 @@ window.onload = (function() {
             changeDataButton.style.opacity = '1';
             clearTimeout(timeout);
             timeout = setTimeout(function() {
-                changeDataButton.style.opacity = '0';
+                if (changeDataBox.style.opacity !== '1') {
+                    changeDataButton.style.opacity = '0';
+                }
             }, 2000);
         };
         changeDataButton.onclick = function() {

@@ -45,14 +45,19 @@
 
 #changeDataButton {
     position: fixed;
+    top: 20px;
+    left: 20px;
     opacity: 0;
     transition: opacity 1s;
+    z-index: 2;
 }
 #changeDataBox {
     position: fixed;
-    top: 50px;
+    top: 10px;
     opacity: 0;
     transition: opacity 0.5s;
-    padding: 10px;
+    padding: 40px 10px 10px 10px;
+    width: 200px;
     background-color: gainsboro;
+    z-index: 1;
 }
