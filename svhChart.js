@@ -17,7 +17,7 @@ window.onload = (function() {
             tickSize: 12
         };
         p.yAxis = {
-            numberOfTicks: 4, // approximate
+            numberOfTicks: 4,
             dx: -10
         };
         p.dana = {
@@ -50,7 +50,7 @@ window.onload = (function() {
             fill: [p.dana.color, p.expense.color, p.balance.color],
             opacity: [p.dana.opacity, p.expense.opacity, p.balance.opacity],
             dx: [0, 110, 240]
-        };
+        }; // end parameters
     
     let allData = [];
     const changeDataButton = document.getElementById("changeDataButton"),
@@ -63,7 +63,10 @@ window.onload = (function() {
         function(error, json) {
             if (error) return console.warn(error);
             allData = prepData(json.values);
-            const data = filterData(allData.slice(0));
+            const url = new URL(window.location.href);
+            const endDate = url.searchParams.get('end-date');
+            const monthCount = url.searchParams.get('month-count');
+            const data = filterData(allData.slice(0), endDate, monthCount);
             createChart(data);
             setupInterface();
         }
@@ -117,8 +120,9 @@ window.onload = (function() {
         return preppedData;
     }; // end prepData
     
-    function filterData(d, endDate, monthCount = 16) {
-        if (typeof(endDate) === 'undefined') { 
+    function filterData(d, endDate, monthCount) {
+        if (!monthCount) monthCount = 16;
+        if (!endDate) { 
             const currentDate = Date.now();
             for (let n = d.length - 1; n > 0; n--) {
                 const rowDate = Date.parse(d[n].month);
