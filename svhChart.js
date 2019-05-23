@@ -1,6 +1,6 @@
 window.onload = (function() {
     
-    var p = {};
+    const p = {}; // parameters
         p.title = 'Seattle Vipassana Hall: Financials';
         p.spreadsheetRange = 'A5:E';
         p.outerWidth = 1200;
@@ -9,7 +9,7 @@ window.onload = (function() {
         p.width = p.outerWidth - p.margin.left - p.margin.right;
         p.height = p.outerHeight - p.margin.top - p.margin.bottom;
         p.bordercolor = 'lightgray';
-        p.borderWidth = 0; // disabled
+        p.borderWidth = 0;
         p.xAxis = {
             rotation: -35,
             dx: -8,
@@ -52,8 +52,8 @@ window.onload = (function() {
             dx: [0, 110, 240]
         };
     
-    var allData,
-        changeDataButton = document.getElementById("changeDataButton"),
+    let allData = [];
+    const changeDataButton = document.getElementById("changeDataButton"),
         changeDataBox = document.getElementById("changeDataBox"),
         changeDataBoxCancel = document.getElementById("changeDataBoxCancel"),
         changeDataBoxOK = document.getElementById("changeDataBoxOK"),
@@ -63,21 +63,21 @@ window.onload = (function() {
         function(error, json) {
             if (error) return console.warn(error);
             allData = prepData(json.values);
-            var data = filterData(allData.slice(0));
+            const data = filterData(allData.slice(0));
             createChart(data);
             setupInterface();
         }
     );
     
     function setupInterface() {
-        var endDate = document.getElementById("endDate");
-        var monthCount = document.getElementById("monthCount");
-        for (var n = 0; n < allData.length; n++) {
-            var option = document.createElement("option");
+        let endDate = document.getElementById("endDate");
+        let monthCount = document.getElementById("monthCount");
+        for (let n = 0; n < allData.length; n++) {
+            let option = document.createElement("option");
             option.text = allData[n].month;
             endDate.add(option);
         }
-        var timeout;
+        let timeout;
         window.onmousemove = function() {
             changeDataButton.style.opacity = '1';
             clearTimeout(timeout);
@@ -98,14 +98,14 @@ window.onload = (function() {
             changeDataBox.style.opacity = '0';
             changeDataButton.style.opacity = '0';
             svg.selectAll("*").remove();
-            var data = filterData(allData.slice(0), endDate.value, monthCount.value);
+            const data = filterData(allData.slice(0), endDate.value, monthCount.value);
             createChart(data);
         };
     } // end setupInterface
     
     function prepData(d) {
-        var preppedData = [];
-        for (var n=0; n < d.length; n++) {
+        let preppedData = [];
+        for (let n=0; n < d.length; n++) {
             preppedData[n] = {
                 month: d[n][0],
                 dana: Number(d[n][1].replace(/[^0-9.-]+/g,"")),
@@ -119,17 +119,17 @@ window.onload = (function() {
     
     function filterData(d, endDate, monthCount = 16) {
         if (typeof(endDate) === 'undefined') { 
-            var currentDate = Date.now();
-            for (var n = d.length - 1; n > 0; n--) {
-                var rowDate = Date.parse(d[n].month);
+            const currentDate = Date.now();
+            for (let n = d.length - 1; n > 0; n--) {
+                const rowDate = Date.parse(d[n].month);
                 if (rowDate > currentDate) {
                     d.splice(n, 1);
                 }
             }
         } else {
             endDate = Date.parse(endDate);
-            for (var n = d.length - 1; n > 0; n--) {
-                var rowDate = Date.parse(d[n].month);
+            for (let n = d.length - 1; n > 0; n--) {
+                const rowDate = Date.parse(d[n].month);
                 if (rowDate > endDate) {
                     d.splice(n, 1);
                 }
@@ -157,17 +157,17 @@ window.onload = (function() {
             .style("stroke", p.bordercolor)
             .style("fill", "none")
             .style("stroke-width", p.borderWidth);
-        var chart = svg.append('g')
+        const chart = svg.append('g')
             .attr('class', 'container')
             .attr('transform', 'translate(' + p.margin.left + ',' + p.margin.top + ')')
         ;    
         
         //-----  Scale, Range, Domain -----//
-        var x = d3.scaleBand()
+        const x = d3.scaleBand()
             .rangeRound([0, p.width])
             .padding(0.0004 * p.width)
         ;
-        var y = d3.scaleLinear()
+        const y = d3.scaleLinear()
             .range([p.height, 0])
         ;
         x.domain(d.map(function(d) { return d.month; } ));
@@ -203,7 +203,7 @@ window.onload = (function() {
         ;
     
         //-----  Balance  -----//
-        var balanceLine = d3.line()
+        const balanceLine = d3.line()
             .x(function(d) { return x(d.month); })
             .y(function(d) { return y(d.balance); })
         ;
@@ -215,7 +215,7 @@ window.onload = (function() {
             .attr('transform', 'translate(' + x.bandwidth() / 2 + ', 0)')
             .attr('d', balanceLine)
         ;	
-        var balanceArea = d3.area()
+        const balanceArea = d3.area()
             .x(function(d) { return x(d.month); })
             .y0(p.height)
             .y1(function(d) { return y(d.balance); })
@@ -230,12 +230,12 @@ window.onload = (function() {
         ;
         
         //-----  Target Minimum Balance  -----//
-        var minimumLine = d3.line()
+        let minimumLine = d3.line()
             .x(function(d) { return x(d.month); })
             .y(function(d) { return y(d.targetMinBal); })
         ;
         minimumLine = minimumLine(d);
-        var minimumLineEnd = minimumLine.substring(minimumLine.lastIndexOf(',') + 1);
+        let minimumLineEnd = minimumLine.substring(minimumLine.lastIndexOf(',') + 1);
         minimumLine = minimumLine + ',' + (p.width - (x.bandwidth() / 2)) + ' ' + minimumLineEnd;
         chart.append('path')
             .attr('class', 'minimum')
@@ -245,12 +245,12 @@ window.onload = (function() {
             .attr('stroke', p.targetMinimumBalance.color)
             .attr('stroke-width', p.targetMinimumBalance.strokeWidth)
         ;
-        var TarMinBalBox = chart.append('text')
+        const TarMinBalBox = chart.append('text')
             .attr('class', 'minimumText')
             .attr('x', function() { return p.width; })
             .attr('y', (Number(minimumLineEnd) + 5))
         ;
-        for(var n = 0; n < p.targetMinimumBalance.text.length; n++) {
+        for(let n = 0; n < p.targetMinimumBalance.text.length; n++) {
             TarMinBalBox.append('tspan')
                 .text(p.targetMinimumBalance.text[n])
                 .attr('text-anchor', 'start')
@@ -264,7 +264,7 @@ window.onload = (function() {
         }
         
         //-----  Dana & Expense  -----//
-        var bars = chart.selectAll('g.container')
+        const bars = chart.selectAll('g.container')
             .data(d)
             .enter().append('g')
                 .attr('transform', function(d) { return 'translate(' + x(d.month) + ',0)'; })
@@ -286,12 +286,12 @@ window.onload = (function() {
         ;
     
         //-----  Legend  -----//
-        var legend = chart.append('g')
+        const legend = chart.append('g')
             .attr('class', 'legend')
             .attr('transform', 'translate(' + p.legend.x + ', ' + p.legend.y + ')')
         ;
-        for (var n = 0; n < p.legend.text.length; n++) {
-            var legendGroup = legend.append('g')
+        for (let n = 0; n < p.legend.text.length; n++) {
+            const legendGroup = legend.append('g')
                 .attr('id', 'lgnd-' + p.legend.text[n])
                 .attr('transform', 'translate(' + p.legend.dx[n] + ', 0)');
             legendGroup.append('rect')
