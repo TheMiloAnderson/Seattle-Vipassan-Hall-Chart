@@ -1,8 +1,10 @@
 window.onload = (function() {
     
-    const p = {}; // parameters
+    //----- Parameters -----//
+    const p = {};
         p.title = 'Seattle Vipassana Hall: Financials';
         p.spreadsheetRange = 'A5:E';
+        p.spreadsheetURL = 'https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly%20Summaries!' + p.spreadsheetRange + '?key=AIzaSyCUoCo3HpGO2RbBnoooc7ycl__UtdAdX48';
         p.outerWidth = 1200;
         p.outerHeight = 700;
         p.margin = {top: 150, right: 110, bottom: 180, left: 110};
@@ -52,6 +54,7 @@ window.onload = (function() {
             dx: [0, 110, 240]
         }; // end parameters
     
+    //----- Global Variables -----//
     let allData = [];
     const changeDataButton = document.getElementById("changeDataButton"),
         changeDataBox = document.getElementById("changeDataBox"),
@@ -59,7 +62,8 @@ window.onload = (function() {
         changeDataBoxOK = document.getElementById("changeDataBoxOK"),
         svg = d3.select('#svhChart');
     
-    d3.json('https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly%20Summaries!' + p.spreadsheetRange + '?key=AIzaSyCUoCo3HpGO2RbBnoooc7ycl__UtdAdX48', 
+    //----- Implementation Logic -----//
+    d3.json(p.spreadsheetURL, 
         function(error, json) {
             if (error) return console.warn(error);
             allData = prepData(json.values);
@@ -72,6 +76,7 @@ window.onload = (function() {
         }
     );
     
+    //----- Helper Functions -----//
     function setupInterface() {
         let endDate = document.getElementById("endDate");
         let monthCount = document.getElementById("monthCount");
@@ -80,7 +85,7 @@ window.onload = (function() {
             option.text = allData[n].month;
             endDate.add(option);
         }
-        let timeout;
+        let timeout = 0;
         window.onmousemove = function() {
             changeDataButton.style.opacity = '1';
             clearTimeout(timeout);
