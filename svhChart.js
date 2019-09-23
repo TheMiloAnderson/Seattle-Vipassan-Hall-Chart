@@ -253,6 +253,7 @@ window.onload = (function() {
             .attr('transform', 'translate(' + x.bandwidth() / 2 + ',0)')
             .attr('stroke', p.targetMinimumBalance.color)
             .attr('stroke-width', p.targetMinimumBalance.strokeWidth)
+            .attr('fill', 'none')
         ;
         const TarMinBalBox = chart.append('text')
             .attr('class', 'minimumText')
