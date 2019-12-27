@@ -39,9 +39,9 @@
 #svhChart path.balanceFill {
     shape-rendering: geometricPrecision;
 }
-#svhChart path.minimum {
+/* #svhChart path.minimum {
     stroke-dasharray: 10, 5;
-}
+} */
 
 #changeDataButton {
     position: fixed;
