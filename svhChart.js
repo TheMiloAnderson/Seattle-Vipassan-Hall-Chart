@@ -4,7 +4,7 @@ window.onload = (function() {
     const p = {};
         p.title = 'Seattle Vipassana Hall: Financials';
         p.spreadsheetRange = 'A5:E';
-        p.spreadsheetURL = 'https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Quarterly!' + p.spreadsheetRange + '?key=AIzaSyCUoCo3HpGO2RbBnoooc7ycl__UtdAdX48';
+        p.spreadsheetURL = 'https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly!' + p.spreadsheetRange + '?key=AIzaSyCUoCo3HpGO2RbBnoooc7ycl__UtdAdX48';
         p.outerWidth = 1200;
         p.outerHeight = 700;
         p.margin = {top: 150, right: 110, bottom: 180, left: 110};
@@ -32,12 +32,12 @@ window.onload = (function() {
         };
         p.balance = {
             color: 'orange',
-            opacity: .0,
-            strokeWidth: 8
+            opacity: .3,
+            strokeWidth: 4
         };
         p.targetMinimumBalance = {
             color: 'green',
-            strokeWidth: 4,
+            strokeWidth: 2,
             text: ['Target', 'Minimum', 'Balance'],
             yOffset: -16,
             lineHeight: 16,
@@ -210,28 +210,7 @@ window.onload = (function() {
         chart.selectAll('.tick')
             .each(function (n) { if (n === 0) this.remove(); })
         ;
-        
-        //-----  Dana & Expense  -----//
-        const bars = chart.selectAll('g.container')
-            .data(d)
-            .enter().append('g')
-                .attr('transform', function(d) { return 'translate(' + x(d.month) + ',0)'; })
-        ;
-        bars.append('rect')
-            .attr('class', 'dana')
-            .attr('fill', p.dana.color)
-            .attr('y', function(d) { return y(d.dana); })
-            .attr('height', function(d) { return p.height - y(d.dana); })
-            .attr('width', x.bandwidth() / 2)
-        ;
-        bars.append('rect')
-            .attr('class', 'expense')
-            .attr('fill', p.expense.color)
-            .attr('y', function(d) { return y(d.expense); })
-            .attr('height', function(d) { return p.height - y(d.expense); })
-            .attr('width', x.bandwidth() / 2)
-            .attr('x', x.bandwidth() / 2)
-        ;
+
 
         //-----  Balance  -----//
         const balanceLine = d3.line()
@@ -258,6 +237,28 @@ window.onload = (function() {
             .data([d])
             .attr('d', balanceArea)
             .attr('transform', 'translate(' + x.bandwidth() / 2 + ', 0)')
+        ;
+        
+        //-----  Dana & Expense  -----//
+        const bars = chart.selectAll('g.container')
+            .data(d)
+            .enter().append('g')
+                .attr('transform', function(d) { return 'translate(' + x(d.month) + ',0)'; })
+        ;
+        bars.append('rect')
+            .attr('class', 'dana')
+            .attr('fill', p.dana.color)
+            .attr('y', function(d) { return y(d.dana); })
+            .attr('height', function(d) { return p.height - y(d.dana); })
+            .attr('width', x.bandwidth() / 2)
+        ;
+        bars.append('rect')
+            .attr('class', 'expense')
+            .attr('fill', p.expense.color)
+            .attr('y', function(d) { return y(d.expense); })
+            .attr('height', function(d) { return p.height - y(d.expense); })
+            .attr('width', x.bandwidth() / 2)
+            .attr('x', x.bandwidth() / 2)
         ;
 
         //-----  Target Minimum Balance  -----//
