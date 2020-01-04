@@ -4,7 +4,7 @@ window.onload = (function() {
     const p = {};
         p.title = 'Seattle Vipassana Hall: Financials';
         p.spreadsheetRange = 'A5:E';
-        p.spreadsheetURL = 'https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly%20Summaries!' + p.spreadsheetRange + '?key=AIzaSyCUoCo3HpGO2RbBnoooc7ycl__UtdAdX48';
+        p.spreadsheetURL = 'https://sheets.googleapis.com/v4/spreadsheets/1dKG0ubVUXrUg0lLhVVu8HqKO18t992PHoQktrhOCeCk/values/Monthly!' + p.spreadsheetRange + '?key=AIzaSyCUoCo3HpGO2RbBnoooc7ycl__UtdAdX48';
         p.outerWidth = 1200;
         p.outerHeight = 700;
         p.margin = {top: 150, right: 110, bottom: 180, left: 110};
@@ -32,8 +32,8 @@ window.onload = (function() {
         };
         p.balance = {
             color: 'orange',
-            opacity: .2,
-            strokeWidth: 3
+            opacity: .3,
+            strokeWidth: 4
         };
         p.targetMinimumBalance = {
             color: 'green',
@@ -210,7 +210,8 @@ window.onload = (function() {
         chart.selectAll('.tick')
             .each(function (n) { if (n === 0) this.remove(); })
         ;
-    
+
+
         //-----  Balance  -----//
         const balanceLine = d3.line()
             .x(function(d) { return x(d.month); })
@@ -238,40 +239,6 @@ window.onload = (function() {
             .attr('transform', 'translate(' + x.bandwidth() / 2 + ', 0)')
         ;
         
-        //-----  Target Minimum Balance  -----//
-        let minimumLine = d3.line()
-            .x(function(d) { return x(d.month); })
-            .y(function(d) { return y(d.targetMinBal); })
-        ;
-        minimumLine = minimumLine(d);
-        let minimumLineEnd = minimumLine.substring(minimumLine.lastIndexOf(',') + 1);
-        minimumLine = minimumLine + ',' + (p.width - (x.bandwidth() / 2)) + ' ' + minimumLineEnd;
-        chart.append('path')
-            .attr('class', 'minimum')
-            .attr('id', 'minimum')
-            .attr('d', minimumLine)
-            .attr('transform', 'translate(' + x.bandwidth() / 2 + ',0)')
-            .attr('stroke', p.targetMinimumBalance.color)
-            .attr('stroke-width', p.targetMinimumBalance.strokeWidth)
-        ;
-        const TarMinBalBox = chart.append('text')
-            .attr('class', 'minimumText')
-            .attr('x', function() { return p.width; })
-            .attr('y', (Number(minimumLineEnd) + 5))
-        ;
-        for(let n = 0; n < p.targetMinimumBalance.text.length; n++) {
-            TarMinBalBox.append('tspan')
-                .text(p.targetMinimumBalance.text[n])
-                .attr('text-anchor', 'start')
-                .attr('font-size', p.targetMinimumBalance.fontSize)
-                .attr('dy', function() { 
-                    return !n ? p.targetMinimumBalance.yOffset : p.targetMinimumBalance.lineHeight; })
-                .attr('x', function() { return p.width; })
-                .attr('dx', 8)
-                .attr('fill', p.targetMinimumBalance.color)
-            ;
-        }
-        
         //-----  Dana & Expense  -----//
         const bars = chart.selectAll('g.container')
             .data(d)
@@ -293,6 +260,41 @@ window.onload = (function() {
             .attr('width', x.bandwidth() / 2)
             .attr('x', x.bandwidth() / 2)
         ;
+
+        //-----  Target Minimum Balance  -----//
+        let minimumLine = d3.line()
+            .x(function(d) { return x(d.month); })
+            .y(function(d) { return y(d.targetMinBal); })
+        ;
+        minimumLine = minimumLine(d);
+        let minimumLineEnd = minimumLine.substring(minimumLine.lastIndexOf(',') + 1);
+        minimumLine = minimumLine + ',' + (p.width - (x.bandwidth() / 2)) + ' ' + minimumLineEnd;
+        chart.append('path')
+            .attr('class', 'minimum')
+            .attr('id', 'minimum')
+            .attr('d', minimumLine)
+            .attr('transform', 'translate(' + x.bandwidth() / 2 + ',0)')
+            .attr('stroke', p.targetMinimumBalance.color)
+            .attr('stroke-width', p.targetMinimumBalance.strokeWidth)
+            .attr('fill', 'none')
+        ;
+        const TarMinBalBox = chart.append('text')
+            .attr('class', 'minimumText')
+            .attr('x', function() { return p.width; })
+            .attr('y', (Number(minimumLineEnd) + 5))
+        ;
+        for(let n = 0; n < p.targetMinimumBalance.text.length; n++) {
+            TarMinBalBox.append('tspan')
+                .text(p.targetMinimumBalance.text[n])
+                .attr('text-anchor', 'start')
+                .attr('font-size', p.targetMinimumBalance.fontSize)
+                .attr('dy', function() { 
+                    return !n ? p.targetMinimumBalance.yOffset : p.targetMinimumBalance.lineHeight; })
+                .attr('x', function() { return p.width; })
+                .attr('dx', 8)
+                .attr('fill', p.targetMinimumBalance.color)
+            ;
+        }
     
         //-----  Legend  -----//
         const legend = chart.append('g')
